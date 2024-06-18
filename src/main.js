@@ -11,8 +11,12 @@ import 'simplelightbox/dist/simple-lightbox.min.css';
 import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
 
-import axios from 'axios';
-
+// import axios from 'axios';
+import axios from "axios";
+axios.get('/users')
+  .then(res => {
+    console.log(res.data);
+  });
 const searchFormElem = document.querySelector('.search-form');
 const searchInputElem = document.querySelector('.search-input');
 const searchBtnElem = document.querySelector('.search-btn');

@@ -151,6 +151,10 @@ body {
   height: 152px;
   width: 100%;
 }
+.hidden {
+  display: none;
+}
+
 .visually-hidden {
   position: absolute;
   width: 1px;
