@@ -11,7 +11,7 @@ import 'simplelightbox/dist/simple-lightbox.min.css';
 import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
 
-// import axios from 'axios';
+import axios from 'axios';
 import axios from "axios";
 axios.get('/users')
   .then(res => {
@@ -23,6 +23,7 @@ const searchBtnElem = document.querySelector('.search-btn');
 const standBySpanElem = document.querySelector('.loader-hidden');
 const galleryElem = document.querySelector('.gallery');
 const axios = require('axios/dist/browser/axios.cjs');
+const axios = require('axios/dist/node/axios.cjs');
 
 let gallery = new SimpleLightbox('.gallery a', {
   captions: true,
