@@ -1,32 +1,24 @@
-import { fetchImages } from './js/pixabay-api.js';
-import { renderMarkup } from './js/render-functions.js';
+import { fetchImages } from './js/pixabay-api';
+import { renderMarkup } from './js/render-functions';
 
 import alert from './img/alert.svg';
 import caution from './img/caution.svg';
+import informSvg from './img/inform.svg'; 
+
 
 // SimpleLightBox library
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
+
 // iziToast library
 import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
 
-
-import axios from "axios";
-axios.get("https://jsonplaceholder.typicode.com/users", {
-    params: {
-      _limit: 1,
-      _sort: "name"
-    }
-  });
-  
 const searchFormElem = document.querySelector('.search-form');
 const searchInputElem = document.querySelector('.search-input');
-const searchBtnElem = document.querySelector('.search-btn');
-const standBySpanElem = document.querySelector('.loader-hidden');
+const standBySpanElem = document.querySelector('.loader');
 const galleryElem = document.querySelector('.gallery');
-const axios = require('axios/dist/browser/axios.cjs');
-const axios = require('axios/dist/node/axios.cjs');
+const loadBtnElem = document.querySelector('.load-btn');
 
 let gallery = new SimpleLightbox('.gallery a', {
   captions: true,
@@ -34,17 +26,30 @@ let gallery = new SimpleLightbox('.gallery a', {
   captionDelay: 250,
 });
 
-searchBtnElem.addEventListener('click', event => {
+const limit = 15;
+let page = 1;
+let totalPages = 0;
+let requestValue = '';
+
+searchFormElem.addEventListener('submit', async event => {
   event.preventDefault();
   if (!searchInputElem.value.trim()) {
     searchFormElem.reset();
     return;
   }
+try {
+  page = 1;
+  requestValue = '';
+  loadBtnElem.classList.add('visually-hidden');
   galleryElem.innerHTML = '';
   standBySpanElem.classList.remove('visually-hidden');
-  fetchImages(searchInputElem.value.trim())
-    .then(data => {
-      if (!data.total) {
+  const fetchData = await fetchImages(
+    searchInputElem.value.trim(),
+    page,
+    limit
+  );
+        if (!fetchData.total) {
+        standBySpanElem.classList.remove('visually-hidden');
         iziToast.error({
           iconUrl: alert,
           position: 'topRight',
@@ -52,17 +57,55 @@ searchBtnElem.addEventListener('click', event => {
             'Sorry, there are no images matching your search query. Please try again!',
         });
       }
-      galleryElem.insertAdjacentHTML('afterbegin', renderMarkup(data));
-      gallery.refresh();
+    standBySpanElem.classList.add('visually-hidden');
+    galleryElem.insertAdjacentHTML('beforeend', renderMarkup(fetchData));
+    gallery.refresh();
+    totalPages = Math.ceil(fetchData.totalHits / limit);
+    requestValue = searchInputElem.value.trim();
+    if (page < totalPages) {
+      loadBtnElem.classList.remove('visually-hidden');
+    }
+  }
+    catch (error) {
       standBySpanElem.classList.add('visually-hidden');
-    })
-    .catch(error => {
       iziToast.warning({
         iconUrl: caution,
-        position: 'topRight',
         message: `${error}`,
+        position: 'topRight',
+        timeout: 5000,
       });
-      standBySpanElem.classList.add('visually-hidden');
-    });
+    }
   searchFormElem.reset();
+});
+
+loadBtnElem.addEventListener('click', async event => {
+  page += 1;
+  if (page === totalPages) {
+    iziToast.info({
+      iconUrl: informSvg,
+      position: 'topRight',
+      backgroundColor: '#09f',
+      message: "We're sorry, but you've reached the end of search results.",
+    });
+    standBySpanElem.classList.add('visually-hidden');
+    loadBtnElem.classList.add('visually-hidden');
+  }
+  try {
+    standBySpanElem.classList.remove('visually-hidden');
+    const fetchData = await fetchImages(requestValue, page, limit);
+    standBySpanElem.classList.add('visually-hidden');
+    galleryElem.insertAdjacentHTML('beforeend', renderMarkup(fetchData));
+    gallery.refresh();
+    window.scrollBy({
+      top: galleryElem.firstChild.getBoundingClientRect().height * 2,
+      behavior: 'smooth',
+    });
+  } catch (error) {
+    standBySpanElem.classList.add('visually-hidden');
+    iziToast.warning({
+      title: 'Error',
+      message: error.message,
+      position: 'topRight',
+    });
+  }
 });
