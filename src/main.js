@@ -56,8 +56,10 @@ try {
           message:
             'Sorry, there are no images matching your search query. Please try again!',
         });
+        standBySpanElem.classList.add('visually-hidden')
+      }  
         return;
-      }
+      
     standBySpanElem.classList.add('visually-hidden');
     galleryElem.insertAdjacentHTML('beforeend', renderMarkup(fetchData));
     gallery.refresh();
