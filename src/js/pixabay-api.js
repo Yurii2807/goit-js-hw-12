@@ -5,7 +5,7 @@ export async function fetchImages(searchDescription, page, limit) {
     
       params: {
       key: '44364811-49b1c0cdbd7356dfdac934983',
-      q: encodeURIComponent(searchDescription),
+      q: searchDescription,
       image_type: 'photo',
       orientation: 'horizontal',
       safesearch: true,
